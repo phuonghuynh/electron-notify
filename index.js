@@ -128,21 +128,25 @@ function setConfig(customConfig) {
 
 function updateTemplatePath() {
   let templatePath = path.join(__dirname, 'notification.html')
-  // Tricky stuff, sometimes this doesn't work,
-  // especially when webpack is involved.
-  // Check if we have a file at that location
   try {
     require('fs').statSync(templatePath).isFile()
   } catch (err) {
     log('electron-notify: Could not find template ("' + templatePath + '").')
     log('electron-notify: To use a different template you need to correct the config.templatePath or simply adapt config.htmlTemplate')
-     // TODO: No file => should we create our own temporary notification.html?
+
+    config.templatePath = require('temp-write').sync(config.htmlTemplate)
   }
   config.templatePath = 'file://' + templatePath
   return config.templatePath
 }
 
 function getTemplatePath() {
+  // if (config.htmlTemplate) {
+  //   return `
+  //       data:text/html;charset=utf-8,${config.htmlTemplate};
+  //   `
+  // }
+
   if (config.templatePath === undefined) {
     return updateTemplatePath()
   }
